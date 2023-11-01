@@ -12,6 +12,14 @@ fn main() {
         println!("{:?}", disk);
     }
 
+    // Components temperature:
+    println!("=> components:");
+    for component in sys.components() {
+        println!("{:?}", component);
+    }
+
+    println!("=> system:");
+    // RAM and swap information:
     println!("total memory: {} bytes", sys.total_memory());
     println!("used memory : {} bytes", sys.used_memory());
     println!("total swap  : {} bytes", sys.total_swap());
@@ -26,10 +34,8 @@ fn main() {
     // Number of CPUs:
     println!("NB CPUs: {}", sys.cpus().len());
 
-    // Sleep for 5 seconds.
+    // Sleep for 5 seconds, then update system information again:
     std::thread::sleep(std::time::Duration::from_secs(5));
-
-    // Sys refresh only processes' information.
     sys.refresh_processes();
 
     for (pid, process) in sys.processes() {
