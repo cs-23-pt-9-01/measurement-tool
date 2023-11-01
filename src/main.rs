@@ -41,10 +41,11 @@ fn main() {
     for (pid, process) in sys.processes() {
         if process.cpu_usage() > 0.0 {
             println!(
-                "Pid: [{}], process name: {}, cpu usage: {}, disk usage: {:?}",
+                "Pid: [{}], process name: {}, cpu usage: {}, memory usage: {}, disk usage: {:?}",
                 pid,
                 process.name(),
                 process.cpu_usage(),
+                process.memory(),
                 process.disk_usage()
             );
         }
@@ -53,8 +54,9 @@ fn main() {
     loop {
         sys.refresh_cpu(); // Refreshing CPU information.
         for cpu in sys.cpus() {
-            print!("{}% ", cpu.cpu_usage());
+            println!("{}% ", cpu.cpu_usage());
         }
+        println!();
         // Sleeping to let time for the system to run for long
         // enough to have useful information.
         std::thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
