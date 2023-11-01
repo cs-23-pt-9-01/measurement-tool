@@ -17,6 +17,15 @@ fn main() {
     println!("total swap  : {} bytes", sys.total_swap());
     println!("used swap   : {} bytes", sys.used_swap());
 
+    // Display system information:
+    println!("System name:             {:?}", sys.name());
+    println!("System kernel version:   {:?}", sys.kernel_version());
+    println!("System OS version:       {:?}", sys.os_version());
+    println!("System host name:        {:?}", sys.host_name());
+
+    // Number of CPUs:
+    println!("NB CPUs: {}", sys.cpus().len());
+
     // Sleep for 5 seconds.
     std::thread::sleep(std::time::Duration::from_secs(5));
 
