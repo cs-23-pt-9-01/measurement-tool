@@ -34,6 +34,7 @@ fn main() {
     sys.refresh_all();
 
     // We display all disks' information:
+    /*
     println!("=> disks:");
     for disk in sys.disks() {
         println!("{:?}", disk);
@@ -60,6 +61,7 @@ fn main() {
 
     // Number of CPUs:
     println!("NB CPUs: {}", sys.cpus().len());
+    */
 
     // Sleep for 5 seconds, then update system information again:
     std::thread::sleep(std::time::Duration::from_secs(1));
