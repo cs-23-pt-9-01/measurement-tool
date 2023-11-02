@@ -98,8 +98,21 @@ fn main() {
         });
     }
 
-    let enabled_services = systemctl::list_enabled_services().unwrap();
-    let units = systemctl::list_units_full(None, None, None).unwrap();
+    #[cfg(target_os = "linux")]
+    let output_data = {
+        let enabled_services = systemctl::list_enabled_services().unwrap();
+        let units = systemctl::list_units_full(None, None, None).unwrap();
+
+        MeasurementData {
+            timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
+            used_memory: sys.used_memory(),
+            used_swap: sys.used_swap(),
+            process_data,
+            cpu_data,
+            enabled_services,
+            units,
+        }
+    };
 
     let output_data = MeasurementData {
         timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
@@ -107,8 +120,8 @@ fn main() {
         used_swap: sys.used_swap(),
         process_data,
         cpu_data,
-        enabled_services,
-        units,
+        enabled_services: Vec::new(),
+        units: Vec::new(),
     };
 
     //let mut testy = serde_json::to_string(&sys).unwrap();
