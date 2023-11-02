@@ -5,7 +5,8 @@ use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
 
 #[derive(Debug, Serialize)]
 struct OutputData {
-    pub used_memory: u64,
+    used_memory: u64,
+    used_swap: u64,
 }
 
 fn main() {
@@ -43,7 +44,7 @@ fn main() {
     println!("NB CPUs: {}", sys.cpus().len());
 
     // Sleep for 5 seconds, then update system information again:
-    std::thread::sleep(std::time::Duration::from_secs(5));
+    std::thread::sleep(std::time::Duration::from_secs(1));
     sys.refresh_processes();
 
     for (pid, process) in sys.processes() {
@@ -65,11 +66,12 @@ fn main() {
         .open("idle-log.txt")
         .unwrap();
 
-    let ayo = OutputData {
+    let output_data = OutputData {
         used_memory: sys.used_memory(),
+        used_swap: sys.used_swap(),
     };
 
-    let mut testy = serde_json::to_string(&ayo).unwrap();
+    let mut testy = serde_json::to_string(&output_data).unwrap();
     testy.push_str("\n");
 
     file.write_all(testy.as_bytes()).unwrap();
