@@ -4,7 +4,7 @@ use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 #[derive(Debug, Serialize)]
-struct OutputData {
+struct MeasurementData {
     timestamp: String,
     used_memory: u64,
     used_swap: u64,
@@ -93,7 +93,7 @@ fn main() {
         });
     }
 
-    let output_data = OutputData {
+    let output_data = MeasurementData {
         timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
         used_memory: sys.used_memory(),
         used_swap: sys.used_swap(),
