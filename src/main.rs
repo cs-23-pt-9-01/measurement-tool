@@ -1,13 +1,20 @@
 use serde::Serialize;
 use std::fs::OpenOptions;
 use std::io::Write;
-use sysinfo::{CpuExt, DiskUsage, Pid, PidExt, ProcessExt, System, SystemExt};
+use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
 
 #[derive(Debug, Serialize)]
 struct OutputData {
     used_memory: u64,
     used_swap: u64,
     process_data: Vec<ProcessData>,
+    cpu_data: Vec<CpuData>,
+}
+
+#[derive(Debug, Serialize)]
+struct CpuData {
+    cpu_usage: f32,
+    frequency: u64,
 }
 
 #[derive(Debug, Serialize)]
@@ -76,19 +83,27 @@ fn main() {
         .open("idle-log.txt")
         .unwrap();
 
+    let mut cpu_data = Vec::new();
+    sys.refresh_cpu();
+    for cpu in sys.cpus() {
+        cpu_data.push(CpuData {
+            cpu_usage: cpu.cpu_usage(),
+            frequency: cpu.frequency(),
+        });
+    }
+
     let output_data = OutputData {
         used_memory: sys.used_memory(),
         used_swap: sys.used_swap(),
         process_data,
+        cpu_data,
     };
 
-    let mut testy = serde_json::to_string(&sys).unwrap();
-
-    let testa = sys.processes();
+    let mut testy = serde_json::to_string(&output_data).unwrap();
+    testy.push_str("\n");
 
     //let mut testy = serde_json::to_string(testa).unwrap();
     //let mut testy = serde_json::to_string(&output_data).unwrap();
-    testy.push_str("\n");
 
     file.write_all(testy.as_bytes()).unwrap();
 
