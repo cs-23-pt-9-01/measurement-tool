@@ -100,49 +100,49 @@ fn main() {
 
         thread::sleep(Duration::from_millis(100));
     }
-
-    /*
-    loop {
-        sys.refresh_cpu(); // Refreshing CPU information.
-        for cpu in sys.cpus() {
-            println!("{}% ", cpu.cpu_usage());
-        }
-        println!();
-        // Sleeping to let time for the system to run for long
-        // enough to have useful information.
-        thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
-    }
-    */
-
-    // We display all disks' information:
-    /*
-    println!("=> disks:");
-    for disk in sys.disks() {
-        println!("{:?}", disk);
-    }
-
-    // Components temperature:
-    println!("=> components:");
-    for component in sys.components() {
-        println!("{:?}", component);
-    }
-
-    println!("=> system:");
-    // RAM and swap information:
-    println!("total memory: {} bytes", sys.total_memory());
-    println!("used memory : {} bytes", sys.used_memory());
-    println!("total swap  : {} bytes", sys.total_swap());
-    println!("used swap   : {} bytes", sys.used_swap());
-
-    // Display system information:
-    println!("System name:             {:?}", sys.name());
-    println!("System kernel version:   {:?}", sys.kernel_version());
-    println!("System OS version:       {:?}", sys.os_version());
-    println!("System host name:        {:?}", sys.host_name());
-
-    // Number of CPUs:
-    println!("NB CPUs: {}", sys.cpus().len());
-    */
-
-    // Sleep for 5 seconds, then update system information again:
 }
+
+/*
+loop {
+    sys.refresh_cpu(); // Refreshing CPU information.
+    for cpu in sys.cpus() {
+        println!("{}% ", cpu.cpu_usage());
+    }
+    println!();
+    // Sleeping to let time for the system to run for long
+    // enough to have useful information.
+    thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
+}
+*/
+
+// We display all disks' information:
+/*
+println!("=> disks:");
+for disk in sys.disks() {
+    println!("{:?}", disk);
+}
+
+// Components temperature:
+println!("=> components:");
+for component in sys.components() {
+    println!("{:?}", component);
+}
+
+println!("=> system:");
+// RAM and swap information:
+println!("total memory: {} bytes", sys.total_memory());
+println!("used memory : {} bytes", sys.used_memory());
+println!("total swap  : {} bytes", sys.total_swap());
+println!("used swap   : {} bytes", sys.used_swap());
+
+// Display system information:
+println!("System name:             {:?}", sys.name());
+println!("System kernel version:   {:?}", sys.kernel_version());
+println!("System OS version:       {:?}", sys.os_version());
+println!("System host name:        {:?}", sys.host_name());
+
+// Number of CPUs:
+println!("NB CPUs: {}", sys.cpus().len());
+*/
+
+// Sleep for 5 seconds, then update system information again:
