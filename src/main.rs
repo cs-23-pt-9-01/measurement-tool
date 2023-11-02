@@ -1,3 +1,5 @@
+use std::fs::OpenOptions;
+use std::io::Write;
 use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
 
 fn main() {
@@ -49,6 +51,16 @@ fn main() {
                 process.disk_usage()
             );
         }
+    }
+
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("idle-log.txt")
+        .unwrap();
+
+    if let Err(e) = writeln!(file, "A new line!") {
+        eprintln!("Couldn't write to file: {}", e);
     }
 
     loop {
