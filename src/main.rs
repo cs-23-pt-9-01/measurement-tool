@@ -1,15 +1,11 @@
 use serde::Serialize;
-use std::{
-    fs::OpenOptions,
-    io::Write,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::{fs::OpenOptions, io::Write};
 use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
-use time::{format_description, OffsetDateTime, UtcOffset};
+use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 #[derive(Debug, Serialize)]
 struct OutputData {
-    timestamp: OffsetDateTime,
+    timestamp: String,
     used_memory: u64,
     used_swap: u64,
     process_data: Vec<ProcessData>,
@@ -97,16 +93,8 @@ fn main() {
         });
     }
 
-    let format = format_description::parse(
-        "[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour \
-             sign:mandatory]:[offset_minute]:[offset_second]",
-    )
-    .unwrap();
-    let aweraewr = OffsetDateTime::now_utc().format(&format).unwrap();
-    println!("{}", aweraewr);
-
     let output_data = OutputData {
-        timestamp: OffsetDateTime::now_utc(),
+        timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
         used_memory: sys.used_memory(),
         used_swap: sys.used_swap(),
         process_data,
