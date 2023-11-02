@@ -1,6 +1,12 @@
+use serde::Serialize;
 use std::fs::OpenOptions;
 use std::io::Write;
 use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
+
+#[derive(Debug, Serialize)]
+struct OutputData {
+    pub used_memory: u64,
+}
 
 fn main() {
     let mut sys = System::new_all();
@@ -59,9 +65,14 @@ fn main() {
         .open("idle-log.txt")
         .unwrap();
 
-    if let Err(e) = writeln!(file, "A new line!") {
-        eprintln!("Couldn't write to file: {}", e);
-    }
+    let ayo = OutputData {
+        used_memory: sys.used_memory(),
+    };
+
+    let mut testy = serde_json::to_string(&ayo).unwrap();
+    testy.push_str("\n");
+
+    file.write_all(testy.as_bytes()).unwrap();
 
     loop {
         sys.refresh_cpu(); // Refreshing CPU information.
