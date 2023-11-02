@@ -83,6 +83,10 @@ fn main() {
     };
 
     let mut testy = serde_json::to_string(&sys).unwrap();
+
+    let testa = sys.processes();
+
+    //let mut testy = serde_json::to_string(testa).unwrap();
     //let mut testy = serde_json::to_string(&output_data).unwrap();
     testy.push_str("\n");
 

@@ -9,4 +9,4 @@ edition = "2021"
 sysinfo = { version = "0.29", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-systemctl = "0.3"
+systemctl = { version = "0.3", features = ["serde"] }
