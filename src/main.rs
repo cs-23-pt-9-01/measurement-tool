@@ -1,12 +1,22 @@
 use serde::Serialize;
 use std::fs::OpenOptions;
 use std::io::Write;
-use sysinfo::{CpuExt, ProcessExt, System, SystemExt};
+use sysinfo::{CpuExt, DiskUsage, Pid, PidExt, ProcessExt, System, SystemExt};
 
 #[derive(Debug, Serialize)]
 struct OutputData {
     used_memory: u64,
     used_swap: u64,
+    process_data: Vec<ProcessData>,
+}
+
+#[derive(Debug, Serialize)]
+struct ProcessData {
+    pid: u32,
+    name: String,
+    cpu_usage: f32,
+    memory_usage: u64,
+    disk_usage: DiskUsage,
 }
 
 fn main() {
@@ -47,16 +57,16 @@ fn main() {
     std::thread::sleep(std::time::Duration::from_secs(1));
     sys.refresh_processes();
 
+    let mut process_data: Vec<ProcessData> = Vec::new();
     for (pid, process) in sys.processes() {
         if process.cpu_usage() > 0.0 {
-            println!(
-                "Pid: [{}], process name: {}, cpu usage: {}, memory usage: {}, disk usage: {:?}",
-                pid,
-                process.name(),
-                process.cpu_usage(),
-                process.memory(),
-                process.disk_usage()
-            );
+            process_data.push(ProcessData {
+                pid: pid.as_u32(),
+                name: process.name().to_string(),
+                cpu_usage: process.cpu_usage(),
+                memory_usage: process.memory(),
+                disk_usage: process.disk_usage(),
+            });
         }
     }
 
@@ -69,9 +79,11 @@ fn main() {
     let output_data = OutputData {
         used_memory: sys.used_memory(),
         used_swap: sys.used_swap(),
+        process_data,
     };
 
-    let mut testy = serde_json::to_string(&output_data).unwrap();
+    let mut testy = serde_json::to_string(&sys).unwrap();
+    //let mut testy = serde_json::to_string(&output_data).unwrap();
     testy.push_str("\n");
 
     file.write_all(testy.as_bytes()).unwrap();
