@@ -64,7 +64,7 @@ fn main() {
     */
 
     // Sleep for 5 seconds, then update system information again:
-    std::thread::sleep(std::time::Duration::from_secs(1));
+    std::thread::sleep(std::time::Duration::from_millis(100));
     sys.refresh_processes();
 
     let mut process_data: Vec<ProcessData> = Vec::new();
@@ -102,6 +102,8 @@ fn main() {
         process_data,
         cpu_data,
     };
+
+    let ayy = systemctl::list_enabled_services().unwrap();
 
     //let mut testy = serde_json::to_string(&sys).unwrap();
     let mut testy = serde_json::to_string(&output_data).unwrap();
