@@ -34,9 +34,15 @@ fn main() {
     let mut sys = System::new_all();
     sys.refresh_all();
 
-    loop {
-        sys.refresh_processes();
+    let mut file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open("idle-log.txt")
+        .unwrap();
 
+    loop {
+        // Refresh processes
+        sys.refresh_processes();
         let mut process_data: Vec<ProcessData> = Vec::new();
         for (pid, process) in sys.processes() {
             if process.cpu_usage() > 0.0 {
@@ -50,12 +56,7 @@ fn main() {
             }
         }
 
-        let mut file = OpenOptions::new()
-            .append(true)
-            .create(true)
-            .open("idle-log.txt")
-            .unwrap();
-
+        // Get CPU data
         let mut cpu_data = Vec::new();
         sys.refresh_cpu();
         for cpu in sys.cpus() {
@@ -92,26 +93,26 @@ fn main() {
         };
 
         //let mut testy = serde_json::to_string(&sys).unwrap();
-        let mut testy = serde_json::to_string(&output_data).unwrap();
-        testy.push('\n');
+        let mut output_data_string = serde_json::to_string(&output_data).unwrap();
+        output_data_string.push('\n');
 
-        file.write_all(testy.as_bytes()).unwrap();
-
-        /*
-        loop {
-            sys.refresh_cpu(); // Refreshing CPU information.
-            for cpu in sys.cpus() {
-                println!("{}% ", cpu.cpu_usage());
-            }
-            println!();
-            // Sleeping to let time for the system to run for long
-            // enough to have useful information.
-            thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
-        }
-        */
+        file.write_all(output_data_string.as_bytes()).unwrap();
 
         thread::sleep(Duration::from_millis(100));
     }
+
+    /*
+    loop {
+        sys.refresh_cpu(); // Refreshing CPU information.
+        for cpu in sys.cpus() {
+            println!("{}% ", cpu.cpu_usage());
+        }
+        println!();
+        // Sleeping to let time for the system to run for long
+        // enough to have useful information.
+        thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
+    }
+    */
 
     // We display all disks' information:
     /*
