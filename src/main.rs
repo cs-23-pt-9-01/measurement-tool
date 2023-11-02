@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::{fs::OpenOptions, io::Write};
+use std::{fs::OpenOptions, io::Write, thread, time::Duration};
 use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
 use systemctl::UnitList;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
@@ -32,9 +32,86 @@ struct ProcessData {
 
 fn main() {
     let mut sys = System::new_all();
-
-    // First we update all information of our `System` struct.
     sys.refresh_all();
+
+    loop {
+        sys.refresh_processes();
+
+        let mut process_data: Vec<ProcessData> = Vec::new();
+        for (pid, process) in sys.processes() {
+            if process.cpu_usage() > 0.0 {
+                process_data.push(ProcessData {
+                    pid: pid.as_u32(),
+                    name: process.name().to_string(),
+                    cpu_usage: process.cpu_usage(),
+                    memory_usage: process.memory(),
+                    disk_usage: process.disk_usage(),
+                });
+            }
+        }
+
+        let mut file = OpenOptions::new()
+            .append(true)
+            .create(true)
+            .open("idle-log.txt")
+            .unwrap();
+
+        let mut cpu_data = Vec::new();
+        sys.refresh_cpu();
+        for cpu in sys.cpus() {
+            cpu_data.push(CpuData {
+                cpu_usage: cpu.cpu_usage(),
+                frequency: cpu.frequency(),
+            });
+        }
+
+        #[cfg(target_os = "linux")]
+        let output_data = {
+            let enabled_services = systemctl::list_enabled_services().unwrap();
+            let units = systemctl::list_units_full(None, None, None).unwrap();
+
+            MeasurementData {
+                timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
+                used_memory: sys.used_memory(),
+                used_swap: sys.used_swap(),
+                process_data,
+                cpu_data,
+                enabled_services,
+                units,
+            }
+        };
+
+        let output_data = MeasurementData {
+            timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
+            used_memory: sys.used_memory(),
+            used_swap: sys.used_swap(),
+            process_data,
+            cpu_data,
+            enabled_services: Vec::new(),
+            units: Vec::new(),
+        };
+
+        //let mut testy = serde_json::to_string(&sys).unwrap();
+        let mut testy = serde_json::to_string(&output_data).unwrap();
+        testy.push('\n');
+
+        file.write_all(testy.as_bytes()).unwrap();
+
+        /*
+        loop {
+            sys.refresh_cpu(); // Refreshing CPU information.
+            for cpu in sys.cpus() {
+                println!("{}% ", cpu.cpu_usage());
+            }
+            println!();
+            // Sleeping to let time for the system to run for long
+            // enough to have useful information.
+            thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
+        }
+        */
+
+        thread::sleep(Duration::from_millis(100));
+    }
 
     // We display all disks' information:
     /*
@@ -67,77 +144,4 @@ fn main() {
     */
 
     // Sleep for 5 seconds, then update system information again:
-    std::thread::sleep(std::time::Duration::from_millis(100));
-    sys.refresh_processes();
-
-    let mut process_data: Vec<ProcessData> = Vec::new();
-    for (pid, process) in sys.processes() {
-        if process.cpu_usage() > 0.0 {
-            process_data.push(ProcessData {
-                pid: pid.as_u32(),
-                name: process.name().to_string(),
-                cpu_usage: process.cpu_usage(),
-                memory_usage: process.memory(),
-                disk_usage: process.disk_usage(),
-            });
-        }
-    }
-
-    let mut file = OpenOptions::new()
-        .append(true)
-        .create(true)
-        .open("idle-log.txt")
-        .unwrap();
-
-    let mut cpu_data = Vec::new();
-    sys.refresh_cpu();
-    for cpu in sys.cpus() {
-        cpu_data.push(CpuData {
-            cpu_usage: cpu.cpu_usage(),
-            frequency: cpu.frequency(),
-        });
-    }
-
-    #[cfg(target_os = "linux")]
-    let output_data = {
-        let enabled_services = systemctl::list_enabled_services().unwrap();
-        let units = systemctl::list_units_full(None, None, None).unwrap();
-
-        MeasurementData {
-            timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
-            used_memory: sys.used_memory(),
-            used_swap: sys.used_swap(),
-            process_data,
-            cpu_data,
-            enabled_services,
-            units,
-        }
-    };
-
-    let output_data = MeasurementData {
-        timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
-        used_memory: sys.used_memory(),
-        used_swap: sys.used_swap(),
-        process_data,
-        cpu_data,
-        enabled_services: Vec::new(),
-        units: Vec::new(),
-    };
-
-    //let mut testy = serde_json::to_string(&sys).unwrap();
-    let mut testy = serde_json::to_string(&output_data).unwrap();
-    testy.push('\n');
-
-    file.write_all(testy.as_bytes()).unwrap();
-
-    loop {
-        sys.refresh_cpu(); // Refreshing CPU information.
-        for cpu in sys.cpus() {
-            println!("{}% ", cpu.cpu_usage());
-        }
-        println!();
-        // Sleeping to let time for the system to run for long
-        // enough to have useful information.
-        std::thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
-    }
 }
