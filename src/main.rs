@@ -1,6 +1,7 @@
 use serde::Serialize;
 use std::{fs::OpenOptions, io::Write};
 use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
+use systemctl::UnitList;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
 #[derive(Debug, Serialize)]
@@ -10,6 +11,8 @@ struct MeasurementData {
     used_swap: u64,
     process_data: Vec<ProcessData>,
     cpu_data: Vec<CpuData>,
+    enabled_services: Vec<String>,
+    units: Vec<UnitList>,
 }
 
 #[derive(Debug, Serialize)]
@@ -95,15 +98,18 @@ fn main() {
         });
     }
 
+    let enabled_services = systemctl::list_enabled_services().unwrap();
+    let units = systemctl::list_units_full(None, None, None).unwrap();
+
     let output_data = MeasurementData {
         timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
         used_memory: sys.used_memory(),
         used_swap: sys.used_swap(),
         process_data,
         cpu_data,
+        enabled_services,
+        units,
     };
-
-    let ayy = systemctl::list_enabled_services().unwrap();
 
     //let mut testy = serde_json::to_string(&sys).unwrap();
     let mut testy = serde_json::to_string(&output_data).unwrap();
