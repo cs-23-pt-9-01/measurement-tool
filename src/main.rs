@@ -99,11 +99,9 @@ fn main() {
         cpu_data,
     };
 
+    //let mut testy = serde_json::to_string(&sys).unwrap();
     let mut testy = serde_json::to_string(&output_data).unwrap();
-    testy.push_str("\n");
-
-    //let mut testy = serde_json::to_string(testa).unwrap();
-    //let mut testy = serde_json::to_string(&output_data).unwrap();
+    testy.push('\n');
 
     file.write_all(testy.as_bytes()).unwrap();
 
