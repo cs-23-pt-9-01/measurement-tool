@@ -99,7 +99,7 @@ fn main() {
 
         file.write_all(output_data_string.as_bytes()).unwrap();
 
-        thread::sleep(Duration::from_millis(100));
+        //thread::sleep(Duration::from_millis(100));
     }
 }
 
