@@ -68,7 +68,7 @@ fn main() {
 
         #[cfg(target_os = "linux")]
         let output_data = {
-            let enabled_services = systemctl::list_enabled_services().unwrap();
+            //let enabled_services = systemctl::list_enabled_services().unwrap();
             let units = systemctl::list_units_full(None, None, None).unwrap();
 
             MeasurementData {
@@ -77,7 +77,7 @@ fn main() {
                 used_swap: sys.used_swap(),
                 process_data,
                 cpu_data,
-                enabled_services,
+                Vec::new(),
                 units,
             }
         };
