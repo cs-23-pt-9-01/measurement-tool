@@ -82,6 +82,7 @@ fn main() {
             }
         };
 
+        #[cfg(target_os = "windows")]
         let output_data = MeasurementData {
             timestamp: OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
             used_memory: sys.used_memory(),
