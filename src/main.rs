@@ -12,7 +12,6 @@ struct MeasurementData {
     used_swap: u64,
     process_data: Vec<ProcessData>,
     cpu_data: Vec<CpuData>,
-    enabled_services: Vec<String>,
     units: Vec<UnitList>,
 }
 
@@ -78,7 +77,6 @@ fn main() {
                 used_swap: sys.used_swap(),
                 process_data,
                 cpu_data,
-                enabled_services: Vec::new(),
                 units,
             }
         };
@@ -90,7 +88,6 @@ fn main() {
             used_swap: sys.used_swap(),
             process_data,
             cpu_data,
-            enabled_services: Vec::new(),
             units: Vec::new(),
         };
 
