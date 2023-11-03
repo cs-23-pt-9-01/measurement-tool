@@ -77,7 +77,7 @@ fn main() {
                 used_swap: sys.used_swap(),
                 process_data,
                 cpu_data,
-                Vec::new(),
+                enabled_services: Vec::new(),
                 units,
             }
         };
