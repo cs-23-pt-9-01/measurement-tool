@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::{fs::OpenOptions, io::Write, thread};
+use std::{fs::OpenOptions, io::Write};
 use sysinfo::SystemExt;
 use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System};
 use systemctl::UnitList;
@@ -100,8 +100,11 @@ fn main() {
 
         file.write_all(output_data_string.as_bytes()).unwrap();
 
-        // TODO: Consider removing this if not wanting CPU usage to be 0
+        // TODO: Fix CPU usage being 0.0, not working yet
+        /*
+        use std::thread;
         thread::sleep(System::MINIMUM_CPU_UPDATE_INTERVAL);
+        */
     }
 }
 
