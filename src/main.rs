@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::{fs::OpenOptions, io::Write, thread, time::Duration};
+use std::{fs::OpenOptions, io::Write};
 use sysinfo::{CpuExt, DiskUsage, PidExt, ProcessExt, System, SystemExt};
 use systemctl::UnitList;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
