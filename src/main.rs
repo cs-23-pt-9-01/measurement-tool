@@ -51,78 +51,43 @@ fn main() {
 
     loop {
         let curr_time = OffsetDateTime::now_utc().format(&Rfc3339).unwrap();
-        let mut output_data = MeasurementData {
+        let mut output_measurement_data = MeasurementData {
             timestamp: bak_data.timestamp.clone(),
             used_memory: sys.used_memory(),
             used_swap: sys.used_swap(),
-            process_data: bak_data.process_data.clone(),
-            cpu_data: bak_data.cpu_data.clone(),
-            units: bak_data.units.clone(),
+            process_data: None,
+            cpu_data: None,
+            units: None,
         };
 
         // Get processes
-        get_processes(&mut sys, &bak_data, &mut output_data);
+        get_processes(&mut sys, &mut bak_data, &mut output_measurement_data);
 
         // Get CPU data
-        get_cpu_data(&mut sys, &bak_data, &mut output_data);
+        get_cpu_data(&mut sys, &mut bak_data, &mut output_measurement_data);
 
         // Get systemd units
         #[cfg(target_os = "linux")]
-        get_systemd_units(&bak_data, &mut output_data);
+        get_systemd_units(&mut bak_data, &mut output_data);
 
         // Write to file
-        if output_data != bak_data {
+        if output_measurement_data != bak_data {
             // Replace timestamp with current time
-            output_data.timestamp = curr_time;
+            output_measurement_data.timestamp = curr_time;
 
-            let mut output_data_string = serde_json::to_string(&output_data).unwrap();
+            let mut output_data_string = serde_json::to_string(&output_measurement_data).unwrap();
             output_data_string.push('\n');
 
             file.write_all(output_data_string.as_bytes()).unwrap();
-
-            bak_data = output_data;
         }
     }
 }
 
-#[cfg(target_os = "linux")]
-fn get_systemd_units(bak_data: &MeasurementData, output_data: &mut MeasurementData) {
-    let units = systemctl::list_units_full(None, None, None).unwrap();
-    if let Some(bak_units_ref) = &bak_data.units {
-        println!("Units exists on bak_data");
-        if bak_units_ref == &units {
-            println!("Units equal");
-            output_data.units = None;
-        } else {
-            println!("Units not equal");
-            output_data.units = Some(units);
-        }
-    } else {
-        println!("New units");
-        output_data.units = Some(units);
-    }
-}
-
-fn get_cpu_data(sys: &mut System, bak_data: &MeasurementData, output_data: &mut MeasurementData) {
-    let mut cpu_data = Vec::new();
-    sys.refresh_cpu();
-    for cpu in sys.cpus() {
-        cpu_data.push(CpuData {
-            cpu_usage: cpu.cpu_usage(),
-            frequency: cpu.frequency(),
-        });
-    }
-
-    if let Some(bak_cpu_data_ref) = &bak_data.cpu_data {
-        if bak_cpu_data_ref != &cpu_data {
-            output_data.cpu_data = Some(cpu_data);
-        }
-    } else {
-        output_data.cpu_data = Some(cpu_data);
-    }
-}
-
-fn get_processes(sys: &mut System, bak_data: &MeasurementData, output_data: &mut MeasurementData) {
+fn get_processes(
+    sys: &mut System,
+    bak_data: &mut MeasurementData,
+    output_data: &mut MeasurementData,
+) {
     sys.refresh_processes();
     let mut process_data: Vec<ProcessData> = Vec::new();
     for (pid, process) in sys.processes() {
@@ -139,10 +104,51 @@ fn get_processes(sys: &mut System, bak_data: &MeasurementData, output_data: &mut
 
     if let Some(bak_process_data_ref) = &bak_data.process_data {
         if bak_process_data_ref != &process_data {
-            output_data.process_data = Some(process_data);
+            output_data.process_data = Some(process_data.clone());
+            bak_data.process_data = Some(process_data);
         }
     } else {
-        output_data.process_data = Some(process_data);
+        output_data.process_data = Some(process_data.clone());
+        bak_data.process_data = Some(process_data);
+    }
+}
+
+fn get_cpu_data(
+    sys: &mut System,
+    bak_data: &mut MeasurementData,
+    output_data: &mut MeasurementData,
+) {
+    let mut cpu_data = Vec::new();
+    sys.refresh_cpu();
+    for cpu in sys.cpus() {
+        cpu_data.push(CpuData {
+            cpu_usage: cpu.cpu_usage(),
+            frequency: cpu.frequency(),
+        });
+    }
+
+    if let Some(bak_cpu_data_ref) = &bak_data.cpu_data {
+        if bak_cpu_data_ref != &cpu_data {
+            output_data.cpu_data = Some(cpu_data.clone());
+            bak_data.cpu_data = Some(cpu_data);
+        }
+    } else {
+        output_data.cpu_data = Some(cpu_data.clone());
+        bak_data.cpu_data = Some(cpu_data);
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn get_systemd_units(bak_data: &mut MeasurementData, output_data: &mut MeasurementData) {
+    let units = systemctl::list_units_full(None, None, None).unwrap();
+    if let Some(bak_units_ref) = &bak_data.units {
+        if bak_units_ref != &units {
+            output_data.units = Some(units);
+            bak_data.units = Some(units);
+        }
+    } else {
+        output_data.units = Some(units);
+        bak_data.units = Some(units);
     }
 }
 
