@@ -95,6 +95,7 @@ fn get_systemd_units(bak_data: &MeasurementData, output_data: &mut MeasurementDa
             output_data.units = Some(units);
         }
     } else {
+        println!("New units");
         output_data.units = Some(units);
     }
 }
