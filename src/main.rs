@@ -89,10 +89,12 @@ fn main() {
 fn get_systemd_units(bak_data: &MeasurementData, output_data: &mut MeasurementData) {
     let units = systemctl::list_units_full(None, None, None).unwrap();
     if let Some(bak_units_ref) = &bak_data.units {
+        println!("Units exists on bak_data");
         if bak_units_ref != &units {
             output_data.units = Some(units);
         }
     } else {
+        println!("New units");
         output_data.units = Some(units);
     }
 }
