@@ -143,11 +143,11 @@ fn get_systemd_units(bak_data: &mut MeasurementData, output_data: &mut Measureme
     let units = systemctl::list_units_full(None, None, None).unwrap();
     if let Some(bak_units_ref) = &bak_data.units {
         if bak_units_ref != &units {
-            output_data.units = Some(units);
+            output_data.units = Some(units.clone());
             bak_data.units = Some(units);
         }
     } else {
-        output_data.units = Some(units);
+        output_data.units = Some(units.clone());
         bak_data.units = Some(units);
     }
 }
