@@ -68,7 +68,7 @@ fn main() {
 
         // Get systemd units
         #[cfg(target_os = "linux")]
-        get_systemd_units(&mut bak_data, &mut output_data);
+        get_systemd_units(&mut bak_data, &mut output_measurement_data);
 
         // Write to file
         if output_measurement_data != bak_data {
