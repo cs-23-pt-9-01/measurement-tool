@@ -55,9 +55,9 @@ fn main() {
             timestamp: bak_data.timestamp.clone(),
             used_memory: sys.used_memory(),
             used_swap: sys.used_swap(),
-            process_data: bak_data.process_data.clone(),
-            cpu_data: bak_data.cpu_data.clone(),
-            units: bak_data.units.clone(),
+            process_data: None,
+            cpu_data: None,
+            units: None,
         };
 
         // Get processes
