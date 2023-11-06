@@ -81,6 +81,8 @@ fn main() {
             file.write_all(output_data_string.as_bytes()).unwrap();
 
             bak_data = output_data;
+
+            println!("Units is some: {}", bak_data.units.is_some());
         }
     }
 }
