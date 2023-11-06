@@ -55,9 +55,9 @@ fn main() {
             timestamp: bak_data.timestamp.clone(),
             used_memory: sys.used_memory(),
             used_swap: sys.used_swap(),
-            process_data: None,
-            cpu_data: None,
-            units: None,
+            process_data: bak_data.process_data.clone(),
+            cpu_data: bak_data.cpu_data.clone(),
+            units: bak_data.units.clone(),
         };
 
         // Get processes
@@ -90,7 +90,11 @@ fn get_systemd_units(bak_data: &MeasurementData, output_data: &mut MeasurementDa
     let units = systemctl::list_units_full(None, None, None).unwrap();
     if let Some(bak_units_ref) = &bak_data.units {
         println!("Units exists on bak_data");
-        if bak_units_ref != &units {
+        if bak_units_ref == &units {
+            println!("Units equal");
+            output_data.units = None;
+        } else {
+            println!("Units not equal");
             output_data.units = Some(units);
         }
     } else {
